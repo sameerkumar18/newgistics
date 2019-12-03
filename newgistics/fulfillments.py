@@ -4,8 +4,7 @@
 newgistics.fulfillments
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-This module contains the resource wrapper for Newgistics Fulfillments System
-
+This module contains the resource wrapper for Newgistics Fulfillments System.
 """
 
 import os
@@ -22,11 +21,22 @@ class Fulfillment(object):
     def __init__(
         self, api_key: str = os.environ.get("NG_FL_API_KEY"), staging: bool = False
     ):
+        """
+        Python client for Newgistics REST Web API
+        :param api_key: API Key for Newgistics Fulfillments API (provided by your Newgistics's account manager).
+        :param staging: False if in production else True
+        Usage::
+          >>> from newgistics import NewgisticsFulfillment
+          >>> ngf_client = NewgisticsFulfillment(api_key='API-KEY', staging=False)
+        """
+
+        if not api_key:
+            raise exceptions.IncorrectParameterError("Missing API Key")
         self.staging = staging
         self.api_key = api_key
         self.staging_url = "https://apistaging.newgisticsfulfillment.com"
-        self.production_url = "https://api.newgisticsfulfillment.com"
-        self.session = requests.Session()
+        self.production_url = "https://apistaging.newgisticsfulfillment.com"
+        self.session = requests.Session().request
         self.returns = Return(self)
         self.inbound_returns = InboundReturn(self)
         self.shipments = Shipment(self)
@@ -39,26 +49,26 @@ class Fulfillment(object):
 
 
 class BaseClient(object):
+    """
+    Parent class for all resources like InboundReturn, Return, Shipment
+    """
+
     def __init__(self, client):
         self.client = client
 
-    def _make_request(
-        self,
-        method_name: str,
-        resource_endpoint: str,
-        dict_payload: dict = None,
-        params: dict = None,
-        headers: dict = None,
-    ):
+    def _make_request(self, method_name: str, resource_endpoint: str, **kwargs):
+        """
+        :param method_name: HTTP Method Name. Example: GET POST
+        :param resource_endpoint: The resource after the base URL
+        :param dict_payload: HTTP Request Payload (Optional)
+        :param query_params: HTTP Request Query Params (Optional)
+        :param headers: HTTP Request Headers (Optional)
+        :return: requests.Response object
         """
 
-        :param method_name:
-        :param resource_endpoint:
-        :param dict_payload:
-        :param params:
-        :param headers:
-        :return:
-        """
+        dict_payload = kwargs.get("dict_payload")
+        query_params = kwargs.get("query_params")
+        headers = kwargs.get("headers")
         xml_payload = None
         if dict_payload:
             xml_payload = xmltodict.unparse(dict_payload)
@@ -69,10 +79,10 @@ class BaseClient(object):
             ),
             "data": xml_payload,
             "auth": FulfillmentAuth(api_key=self.client.api_key),
-            "params": params,
+            "params": query_params,
             "headers": headers,
         }
-        req = self.client.session.request(method_name, **request_params)
+        req = self.client.session(method_name, **request_params)
         return req
 
     @staticmethod
@@ -101,14 +111,37 @@ class BaseClient(object):
 
 
 class InboundReturn(BaseClient):
-    def fetch(self, **params) -> requests.Response:
+    """
+    The resource class which communicates with the Return API.
+    Functionalities under this class:
+        Fetch InboundReturn(s)
+    """
+
+    def fetch(self, params: dict = None) -> requests.Response:
+        """
+        Fetches Inbound Return(s)
+        :param params: HTTP Request Parameters (Optional)
+        :return: requests.Response object
+
+        Usage::
+          >>> ngf_client.inbound_returns.create(params={})
+        """
         resource = "inbound_returns.aspx"
-        response = self._make_request("GET", resource_endpoint=resource, params=params)
+        response = self._make_request(
+            "GET", resource_endpoint=resource, query_params=params
+        )
         return self.process(response)
 
-    def create(self, payload, params) -> requests.Response:
-        # line_items, rma_id, shipment_id, comments
+    def create(self, payload: dict = None, params: dict = None) -> requests.Response:
         """
+        Create Inbound Return
+        :param: HTTP Request Parameters (Optional)
+        :payload: HTTP Request Payload (Optional)
+        :return: requests.Response object
+
+        Usage::
+          >>> ngf_client.inbound_returns.create(payload={}, params={})
+
         Sample Payload
         line_items: [{"SKU": XXX, "Qty": XX, "Reason": XXX}]
         shipment_id: '12806'
@@ -147,34 +180,69 @@ class InboundReturn(BaseClient):
         response = self._make_request(
             "POST",
             resource_endpoint=resource,
-            params={"rmaID": params["rmaID"]},
+            query_params={"rmaID": params["rmaID"]},
             dict_payload=payload,
         )
         return self.process(response)
 
 
 class Return(BaseClient):
-    def fetch(self, **params) -> requests.Response:
+    """
+    The resource class which communicates with the Return API.
+    Functionalities under this class:
+        Fetch Return(s)
+    """
+
+    def fetch(self, params: dict = None) -> requests.Response:
+        """
+        Fetches Return(s)
+        :param params: HTTP Request Parameters (Optional)
+        :return: requests.Response object
+
+        Usage::
+          >>> ngf_client.returns.fetch(params={})
+        """
+
         resource = "returns.aspx"
-        response = self._make_request("GET", resource_endpoint=resource, params=params)
+        response = self._make_request(
+            "GET", resource_endpoint=resource, query_params=params
+        )
         return self.process(response)
 
 
 class Shipment(BaseClient):
-    def fetch(self, **params) -> requests.Response:
+    """
+    The resource class which communicates with the Shipments API.
+    Functionalities under this class:
+        Fetch Shipment(s)
+        Create Shipment
+    """
+
+    def fetch(self, params: dict = None) -> requests.Response:
+        """
+        Fetches Shipment(s)
+        :param params: HTTP Request Parameters (Optional)
+        :return: requests.Response object
+
+        Usage::
+          >>> ngf_client.shipments.create(params={})
+        """
         resource = "shipments.aspx"
-        response = self._make_request("GET", resource_endpoint=resource, params=params)
+        response = self._make_request(
+            "GET", resource_endpoint=resource, query_params=params
+        )
         return self.process(response)
 
-    def create(self, payload, params) -> requests.Response:
+    def create(self, payload: dict = None, params: dict = None) -> requests.Response:
         """
-
+        Creates Shipment
         :param params: Request parameters
         :param payload: Request payload
         :return: requests.Response object
 
+        Usage::
+          >>> ngf_client.shipments.create(payload={}, params={})
         """
-        #  line_items, customer_info, order_id, custom_fields, order_creation_date, requires_signature, hold_inventory,
         payload["Orders"]["@apiKey"] = payload["Orders"]["apiKey"]
         payload["Orders"]["@apiKey"]["Order"]["@id"] = payload["Orders"]["@apiKey"][
             "Order"
@@ -191,28 +259,11 @@ class Shipment(BaseClient):
                     "Country": "US", "Email": "flygirlmom2@gmail.com", "Phone": null, "IsResidential": "true"
                      }
         """
-
-        # Explicit is better than Implicit
-        # ng_items = []
-        # for item in line_items:
-        #     ng_items.append({"SKU": item["SKU"], "Qty": item["Qty"]})
-        # payload = {
-        #     "Orders": {
-        #         "@apiKey": self.client.api_key,
-        #         "Order": {
-        #             "@id": order_id,
-        #             "CustomerInfo": customer_info,
-        #             "AllowDuplicate": False,
-        #             "OrderDate": order_creation_date,
-        #             "RequiresSignature": requires_signature,
-        #             "HoldForAllInventory": hold_inventory,
-        #             "CustomFields": custom_fields,
-        #             "Items": {"Item": ng_items},
-        #         },
-        #     }
-        # }
         resource = "post_shipments.aspx"
         response = self._make_request(
-            "POST", resource_endpoint=resource, dict_payload=payload, params=params
+            "POST",
+            resource_endpoint=resource,
+            dict_payload=payload,
+            query_params=params,
         )
         return self.process(response)

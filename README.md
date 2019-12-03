@@ -6,3 +6,6 @@ Scope:
 1. Handles few parts of the Newgistics API like
  Shipments in Newgistics Web API and Inbound Returns, Shipments, Returns 
  in Newgistics Fulfillment API
+
+Input: payload, params
+Output: requests Response object where you can play with it like resp.status_code, resp.json()

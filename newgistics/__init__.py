@@ -2,8 +2,8 @@
 
 """
 Newgistics Python Client (Unofficial)
-~~~~~~~
-Newgistics Python Client.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 :copyright: (c) 2019 by Sameer Kumar.
 :license: Apache 2.0, see LICENSE for more details.
 https://newgistics.com/

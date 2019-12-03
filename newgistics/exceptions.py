@@ -3,6 +3,7 @@
 """
 newgistics.exceptions
 ~~~~~~~~~~~~~~~~~~~~~
+
 This module contains all the custom defined exceptions.
 """
 
