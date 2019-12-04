@@ -145,8 +145,8 @@ class InboundReturn(BaseClient):
           >>> ngf_client.inbound_returns.create(payload={}, params={})
 
         Sample Payload
-        {'Returns': {'@apiKey': '<API- Key>',
-          'Return': {'@id': '158348',
+        {'Returns': {
+          'Return': {'id': '158348',
            'Comments': 'COMMENTS',
            'Items': {'Item': [{'Qty': 10, 'Reason': 'Some_Reason', 'SKU': 'HLU'}]},
            'RMA': '1234'}}}
@@ -256,9 +256,7 @@ class Shipment(BaseClient):
         if not payload["Orders"]["Order"].get("@id") and payload["Orders"]["Order"].get(
             "id"
         ):
-            payload["Orders"]["Order"]["@id"] = payload["Orders"]["@apiKey"]["Order"][
-                "id"
-            ]
+            payload["Orders"]["Order"]["@id"] = payload["Orders"]["Order"]["id"]
 
         resource = "post_shipments.aspx"
         response = self._make_request(

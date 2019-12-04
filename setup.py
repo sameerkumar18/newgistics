@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-pdfgeneratorapi
-~~~~~~~~~~~~~~~
-Setup for PDFGeneratorAPI
+Newgistics Python Client
+~~~~~~~~~~~~~~~~~~~~~~~~
+Setup for Newgistics Python Client
 """
 
 from setuptools import setup, find_packages
@@ -35,7 +35,7 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords="api wrapper client library newgistics rest web api fulfillments",
+    keywords="api wrapper client library newgistics rest web api fulfillments pitneybowes",
     packages=find_packages(exclude=["contrib", "docs", "tests", "venv"]),
     install_requires=["requests==2.22.0", "xmltodict==0.12.0"],
     test_suite="tests",
