@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="newgistics",
-    version="0.1",
+    version="0.2",
     description="A python client library for Newgistics Web API and Fulfillments API",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

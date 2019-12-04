@@ -8,7 +8,7 @@ Newgistics Python Client (Unofficial)
 :license: Apache 2.0, see LICENSE for more details.
 https://newgistics.com/
  """
-__version__ = "0.1"
+__version__ = "0.2"
 
 from .fulfillments import Fulfillment as NewgisticsFulfillment
 from .web import NewgisticsREST as NewgisticsWeb
