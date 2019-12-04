@@ -40,7 +40,7 @@ class NewgisticsREST(object):
         self.staging = staging
         self.api_key = api_key
         self.staging_url = "https://apiint.newgistics.com"
-        self.production_url = "https://apiint.newgistics.com"
+        self.production_url = "https://api.newgistics.com"
         self.session = requests.Session().request
         self.labels = ShipmentLabel(self)
 

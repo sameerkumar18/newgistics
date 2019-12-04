@@ -37,7 +37,7 @@ class Fulfillment(object):
         self.staging = staging
         self.api_key = api_key
         self.staging_url = "https://apistaging.newgisticsfulfillment.com"
-        self.production_url = "https://apistaging.newgisticsfulfillment.com"
+        self.production_url = "https://api.newgisticsfulfillment.com"
         self.session = requests.Session().request
         self.returns = Return(self)
         self.inbound_returns = InboundReturn(self)
