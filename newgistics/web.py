@@ -21,6 +21,7 @@ class NewgisticsREST(object):
     """
     Python client for Newgistics REST Web API
     """
+
     def __init__(
         self, api_key: str = os.environ.get("NG_WEB_API_KEY"), staging: bool = False
     ):
@@ -33,6 +34,7 @@ class NewgisticsREST(object):
           >>> from newgistics import NewgisticsWeb
           >>> ngweb_client = NewgisticsWeb(api_key='API-KEY', staging=False)
         """
+
         if not api_key:
             raise exceptions.IncorrectParameterError("Missing API Key")
         self.staging = staging
@@ -94,7 +96,7 @@ class BaseClient(object):
         parsed_dict = xmltodict.parse(response.content)
 
         # Override requests object with JSON response in-place of originally XML
-        response._content = str.encode(json.dumps(parsed_dict))  # noqa
+        response._content = str.encode(json.dumps(parsed_dict))
         try:
             response.raise_for_status()
         except requests.HTTPError as http_err:

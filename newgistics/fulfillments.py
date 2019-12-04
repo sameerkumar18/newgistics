@@ -23,8 +23,10 @@ class Fulfillment(object):
     ):
         """
         Python client for Newgistics REST Web API
-        :param api_key: API Key for Newgistics Fulfillments API (provided by your Newgistics's account manager).
+        :param api_key: API Key for Newgistics Fulfillments API
+                        (provided by your Newgistics's account manager).
         :param staging: False if in production else True
+
         Usage::
           >>> from newgistics import NewgisticsFulfillment
           >>> ngf_client = NewgisticsFulfillment(api_key='API-KEY', staging=False)
@@ -143,44 +145,31 @@ class InboundReturn(BaseClient):
           >>> ngf_client.inbound_returns.create(payload={}, params={})
 
         Sample Payload
-        line_items: [{"SKU": XXX, "Qty": XX, "Reason": XXX}]
-        shipment_id: '12806'
-        rma_id: 123456789-12806
-        comment: Service Request XYZ
+        {'Returns': {'@apiKey': '<API- Key>',
+          'Return': {'@id': '158348',
+           'Comments': 'COMMENTS',
+           'Items': {'Item': [{'Qty': 10, 'Reason': 'Some_Reason', 'SKU': 'HLU'}]},
+           'RMA': '1234'}}}
         """
-        payload["Returns"]["@apiKey"] = payload["Returns"]["apiKey"]
-        try:
-            payload["Returns"]["@apiKey"]["Return"]["@id"] = payload["Returns"][
-                "@apiKey"
-            ]["Return"]["id"]
-        except:
-            payload["Returns"]["@apiKey"]["Return"]["@orderID"] = payload["Returns"][
-                "@apiKey"
-            ]["Return"]["orderID"]
-        del payload["Returns"]["apiKey"]
+        payload["Returns"]["@apiKey"] = self.client.api_key
+        if not payload["Returns"]["Return"].get("@id") and payload["Returns"][
+            "Return"
+        ].get("id"):
+            # Where shipment id exists
+            payload["Returns"]["Return"]["@id"] = payload["Returns"]["Return"].pop("id")
+        elif not payload["Returns"]["Return"].get("@orderID") and payload["Returns"][
+            "Return"
+        ].get("orderID"):
+            # Where order id  exists
+            payload["Returns"]["Return"]["@orderID"] = payload["Returns"]["Return"].pop(
+                "orderID"
+            )
 
-        # Explicit is better than Implicit
-        # ng_items = []
-        # for item in line_items:
-        #     ng_items.append(
-        #         {"SKU": item["SKU"], "Qty": item["Qty"], "Reason": item["Reason"]}
-        #     )
-        # payload = {
-        #     "Returns": {
-        #         "@apiKey": self.client.api_key,
-        #         "Return": {
-        #             "@id": shipment_id,
-        #             "RMA": rma_id,
-        #             "Comments": comments,
-        #             "Items": {"Item": ng_items},
-        #         },
-        #     }
-        # }
         resource = "post_inbound_returns.aspx"
         response = self._make_request(
             "POST",
             resource_endpoint=resource,
-            query_params={"rmaID": params["rmaID"]},
+            query_params=params,
             dict_payload=payload,
         )
         return self.process(response)
@@ -242,23 +231,35 @@ class Shipment(BaseClient):
 
         Usage::
           >>> ngf_client.shipments.create(payload={}, params={})
-        """
-        payload["Orders"]["@apiKey"] = payload["Orders"]["apiKey"]
-        payload["Orders"]["@apiKey"]["Order"]["@id"] = payload["Orders"]["@apiKey"][
-            "Order"
-        ]["id"]
-        del payload["Orders"]["apiKey"]
-        """
         Sample Payload:
-        line_items: [{"SKU": XXX, "Qty": XX]
-        order_id: '12806'
-        customer_info: {
-                    "Company": null,
-                    "FirstName": "Debra", "LastName": "Barron", "Address1": "13823 Waverton Lane",
-                    "Address2": null, "City": "Huntersville", "State": "NC", "Zip": "28078",
-                    "Country": "US", "Email": "flygirlmom2@gmail.com", "Phone": null, "IsResidential": "true"
-                     }
+            {'Orders':
+                    {'Order': {'AllowDuplicate': False,
+                               'CustomerInfo': {'Address1': '32142 Waverton Lane',
+                                'Address2': None,
+                                'City': 'Huntersville',
+                                'Company': None,
+                                'Country': 'US',
+                                'Email': 'yestestmail@gmail.com',
+                                'FirstName': 'John',
+                                'IsResidential': 'true',
+                                'LastName': 'Barron',
+                                'Phone': None,
+                                'State': 'NC',
+                                'Zip': '28078'},
+                               'HoldForAllInventory': False,
+                               'Items': {'Item': [{'Qty': 10, 'SKU': 'HLU'}]},
+                               'OrderDate': '04-12-2019',
+                               'RequiresSignature': False,
+                               'id': '4321'}}}
         """
+        payload["Orders"]["@apiKey"] = self.client.api_key
+        if not payload["Orders"]["Order"].get("@id") and payload["Orders"]["Order"].get(
+            "id"
+        ):
+            payload["Orders"]["Order"]["@id"] = payload["Orders"]["@apiKey"]["Order"][
+                "id"
+            ]
+
         resource = "post_shipments.aspx"
         response = self._make_request(
             "POST",

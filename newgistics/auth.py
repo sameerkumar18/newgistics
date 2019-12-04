@@ -32,7 +32,6 @@ class FulfillmentAuth(auth.AuthBase):
 
     def __call__(self, r: PreparedRequest) -> PreparedRequest:
         r.headers["Content-Type"] = self.content_type
-        r.prepare_url(r.url, dict(
-            key=self.api_key))
+        r.prepare_url(r.url, dict(key=self.api_key))
 
         return r
