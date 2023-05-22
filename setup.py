@@ -37,7 +37,7 @@ setup(
     ],
     keywords="api wrapper client library newgistics rest web api fulfillments pitneybowes",
     packages=find_packages(exclude=["contrib", "docs", "tests", "venv"]),
-    install_requires=["requests==2.22.0", "xmltodict==0.12.0"],
+    install_requires=["requests==2.31.0", "xmltodict==0.12.0"],
     test_suite="tests",
     test_require=["python-dotenv"],
     # List additional groups of dependencies here (e.g. development
